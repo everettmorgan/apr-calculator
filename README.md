@@ -1,7 +1,17 @@
 # Affirm APR Calculator using "As low as" API Endpoint
 
-## Goals & TODOs
-- COMING SOON
+## Setup (in progress)
+- Add the apr_calculator script from the assests folder to your site.
+- Expects two arguments: 1) Public API key 2) Promos Object
+```
+const promoOptions = {
+  apr10: ["promo_set_alaonly_12r_apr10_product", "promo_set_alaonly_24r_apr10_product", "promo_set_alaonly_48r_apr10_product"], 
+  apr20: ["promo_set_alaonly_12r_apr20_product", "promo_set_alaonly_24r_apr20_product", "promo_set_alaonly_48r_apr20_product"], 
+  apr30: ["promo_set_alaonly_12r_apr30_product", "promo_set_alaonly_24r_apr30_product", "promo_set_alaonly_48r_apr30_product"]  
+}
+
+let example = AffirmAprCalculator("KP1Z67N4KEBNJWHW", promoOptions)
+```
 
 ## Object
 ```
@@ -64,3 +74,6 @@
   1: ...
 ]
 ```
+
+#### TODOS (in progress)
+- add automatic data binding to term elements upon element creation
