@@ -10,7 +10,7 @@ const promoOptions = {
   apr30: ["promo_set_alaonly_12r_apr30_product", "promo_set_alaonly_24r_apr30_product", "promo_set_alaonly_48r_apr30_product"]  
 }
 
-let example = AffirmAprCalculator("KP1Z67N4KEBNJWHW", promoOptions)
+let example = AffirmAprCalculator("ABCDEFGHIJKLMNOPQRSTUVWXYZ", promoOptions)
 ```
 
 ## Object
