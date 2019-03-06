@@ -2,6 +2,8 @@
 
 ## Setup (in progress)
 - Add the apr_calculator script from the assests folder to your site.
+- Expects "#affirm-apr-calculator-input" id assigned to input element
+- Expects APR selector to have two things: 1) name set to "interest" 2) value set to "apr%%"
 - Expects two arguments: 1) Public API key 2) Promos Object
 ```
 const promoOptions = {
