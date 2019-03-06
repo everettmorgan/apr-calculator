@@ -41,7 +41,12 @@ let example = AffirmAprCalculator("ABCDEFGHIJKLMNOPQRSTUVWXYZ", promoOptions)
 
 #### elements: Array
 ```
-[div.term, div.term, div.term, ...div.term]
+[
+  0: div.term, 
+  1: div.term, 
+  2: div.term, 
+  3: ...div.term
+]
 ```
 
 #### promosIds: Object
