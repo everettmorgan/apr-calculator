@@ -13,7 +13,7 @@ const promoOptions = {
 let example = AffirmAprCalculator("ABCDEFGHIJKLMNOPQRSTUVWXYZ", promoOptions)
 ```
 
-## Object
+## Example Returned Object
 ```
 {
   apikey: String,
