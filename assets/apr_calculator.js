@@ -19,11 +19,6 @@
 
             // Run all init functions for the default input value.
             this.forceFullRun();
-
-            Object.defineProperty(this, "amount", {
-                get: () => { return this.data.amount * 2 },
-                set: (val) => { this.data.amount = val * 2 }
-            });
         };
 
         AffirmAprCalculator.prototype = {
