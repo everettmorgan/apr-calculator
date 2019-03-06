@@ -58,3 +58,9 @@
 ```
 
 #### urls: Array
+```
+[
+  0: "https://affirm.com/api/v2/promos/v2/ABCDEFG?promo_external_id=promo_set_alaonly_12r_apr10_product&amount=149999",
+  1: ...
+]
+```
