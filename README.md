@@ -1,10 +1,16 @@
 # Affirm APR Calculator using "As low as" API Endpoint
 
 ## Setup (in progress)
-- Add the apr_calculator script from the assests folder to your site.
-- Expects "#affirm-apr-calculator-input" id assigned to input element
-- Expects APR selector to have two things: 1) name set to "interest" 2) value set to "apr%%"
-- Expects two arguments: 1) Public API key 2) Promos Object
+1) Add the apr_calculator script from the assests folder to your site.
+2) Expects "#affirm-apr-calculator-input" id assigned to input element
+```
+<input id="affirm-apr-calculator-input" ...>
+```
+3) Expects APR selectors to have two things: 1) name set to "interest" 2) value set to "apr%%"
+```
+e.g. <input name="interest" value="apr10" ...>
+```
+4) Expects two arguments: 1) Public API key 2) Promos Object
 ```
 const promoOptions = {
   apr10: ["promo_set_alaonly_12r_apr10_product", "promo_set_alaonly_24r_apr10_product", "promo_set_alaonly_48r_apr10_product"], 
@@ -13,6 +19,11 @@ const promoOptions = {
 }
 
 let example = AffirmAprCalculator("ABCDEFGHIJKLMNOPQRSTUVWXYZ", promoOptions)
+
+function foo() {
+  // do something with the AffirmAprCalculator object
+  // example.data
+}
 ```
 
 ## Example Returned Object
