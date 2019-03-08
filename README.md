@@ -2,9 +2,9 @@
 
 ## Setup (in progress)
 1) Add the apr_calculator script from the assests folder to your site.
-2) Expects "#affirm-apr-calculator-input" id assigned to input element
+2) Expects "#affirm-apr-calculator-input" id assigned to a text input element
 ```
-<input id="affirm-apr-calculator-input" ...>
+<input id="affirm-apr-calculator-input" type="text"...>
 ```
 3) Expects APR selectors to have two things: 1) name set to "interest" 2) value set to "apr%%"
 ```
