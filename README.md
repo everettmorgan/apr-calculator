@@ -26,7 +26,7 @@ function foo() {
 }
 ```
 
-## Example Returned Object
+## Example Object
 ```
 {
   apikey: String,
@@ -40,7 +40,7 @@ function foo() {
 }
 ```
 
-### Object Key-Value Example
+### Example Object Key-Values
 
 #### apikey: String
 ```
@@ -95,3 +95,5 @@ function foo() {
 
 #### TODOS (in progress)
 - add automatic data binding to term elements upon element creation
+- enable user to pass custom regexp for input format
+- enable user to pass custom HTML term element
