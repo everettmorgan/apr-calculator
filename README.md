@@ -97,3 +97,4 @@ function foo() {
 - add automatic data binding to term elements upon element creation
 - enable user to pass custom regexp for input format
 - enable user to pass custom HTML term element
+- create simple html markup to display example setup
