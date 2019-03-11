@@ -19,11 +19,6 @@
 
             // Run all init functions for the default input value.
             this.forceFullRun();
-
-            Object.defineProperty(this, "amount", {
-                get: () => { return this.data.amount * 2 },
-                set: (val) => { this.data.amount = val * 2 }
-            });
         };
 
         AffirmAprCalculator.prototype = {
@@ -37,7 +32,7 @@
             {
                 // Expects an element with the id "affirm-apr-calculator-input"
                 let input = document.getElementById("affirm-apr-calculator-input")
-                    ,   aprSelectors = document.querySelectorAll(".apr");
+                ,   aprSelectors = document.querySelectorAll(".apr");
 
                 try {
                     // Update amount based on default input value
@@ -45,7 +40,7 @@
                     // Add the event listener to refresh the data
                     input.addEventListener("input", () => {
                         clearTimeout(this.inputTimer);
-                        setTimeout(() => {
+                        this.inputTimer = setTimeout(() => {
                             this.validateAndSetPrice(input.value);
                             this.buildAsLowAsEndpointRequest();
                             this.sendRequestsSetDataAndCreateElements();
@@ -74,8 +69,8 @@
             {
                 // NOTE: clear URLs array upon every build
                 let promos = this.data.promoIds
-                    ,   urls = this.data.urls = []
-                    ,   totalCounter = 0;
+                ,   urls = this.data.urls = []
+                ,   totalCounter = 0;
 
                 // Build URLs array for "As Low As" API Endpoint
                 for (let key in promos)
@@ -107,7 +102,7 @@
                 // Looking for X,XXX.XX
                 // TODO: allow merchant to pass custom regexp
 
-                let regexp = /^([0-9]|,)+(\.[0-9]{2}$)*/;
+                let regexp = /^([0-9,])+(\.[0-9]{2}$)*/;
                 // Set the desired price based on a valid input. Otherwise set it to 0.
                 this.data.amount = regexp.test(price)
                     ? String.prototype.replace.call(price, /[.,]/g, "")
@@ -136,9 +131,9 @@
                             // Extract specific information from tagline string.
 
                             let apr = tagline.match(/(?:\s)([0-9]+)(?:%\s*)/)[1].trim()
-                                ,   term = tagline.match(/(\s[0-9]+\s)(?:months\.)/)[1].trim()
-                                ,   perMonth = tagline.match(/(?:\$)([0-9.,]+)(?:\/mo)/)[1].trim().replace(/,/g, "")
-                                ,   total = (parseInt(term) * parseInt(perMonth)).toFixed(2);
+                            ,   term = tagline.match(/(\s[0-9]+\s)(?:months\.)/)[1].trim()
+                            ,   perMonth = tagline.match(/(?:\$)([0-9.,]+)(?:\/mo)/)[1].trim().replace(/,/g, "")
+                            ,   total = (parseInt(term) * parseInt(perMonth)).toFixed(2);
 
                             // Generate response data object. Attach to object for record keeping.
                             responseData[i] = {
@@ -198,7 +193,7 @@
             appendHTMLElementsToContainer: function()
             {
                 let container = document.getElementById("terms")
-                    , selectedApr = document.querySelector("input[name='interest']:checked").value;
+                ,   selectedApr = document.querySelector("input[name='interest']:checked").value;
 
                 container.innerText = "";
 
