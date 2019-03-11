@@ -1,4 +1,4 @@
-# IN PROGRESS - NOT FULLY FUNCTIONAL
+| Status | In Progress |
 
 # Affirm APR Calculator using "As low as" API Endpoint
 
