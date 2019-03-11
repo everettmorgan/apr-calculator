@@ -3,6 +3,9 @@
 
 # Affirm APR Calculator using "As low as" API Endpoint
 
+## Prerequisites
+- Contact your account manager to setup special promo_ids. Each promo MUST have "_aprXX_" somewhere in the string.
+
 ## Setup (in progress)
 1) Add the apr_calculator script from the assests folder to your site.
 2) Expects "#affirm-apr-calculator-input" id assigned to a text input element
