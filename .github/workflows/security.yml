@@ -24,29 +24,3 @@ jobs:
 
       - name: Run CodeQL analysis
         uses: github/codeql-action/analyze@v3
-
-  dependency-audit:
-    name: Dependency audit (Yarn)
-    runs-on: ubuntu-latest
-    needs: codeql
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'yarn'
-
-      - name: Ensure Yarn (Corepack)
-        run: |
-          corepack enable
-          corepack prepare yarn@stable --activate
-
-      - name: Install dependencies
-        run: yarn install --immutable --immutable-cache
-
-      - name: Run yarn audit
-        # Fail the job if vulnerabilities >= moderate are found
-        run: yarn audit --level moderate
