@@ -1,106 +1,87 @@
-|Status|In Progress|
-|------|-----------|
+# Affirm APR Calculator
 
-# Affirm APR Calculator using "As low as" API Endpoint
+A small, embeddable APR estimator built with TypeScript and Web Components (Lit). The library exposes a single initializer and renders an interactive APR/payment estimate UI into a host container.
 
-## Prerequisites
-- Contact your account manager to setup special promo_ids. Each promo MUST have "\_aprXX\_" somewhere in the string.
+- Built with: `TypeScript`, `lit`, `typedi`, `zod`, `lodash`
+- Output: `dist/apr_calculator.js` (bundled, minified, global name `AffirmAprCalculator`)
 
-## Setup (in progress)
-1) Add the apr_calculator script from the assests folder to your site.
-2) Expects "#affirm-apr-calculator-input" id assigned to a text input element
-```
-<input id="affirm-apr-calculator-input" type="text"...>
-```
-3) Expects APR selectors to have two things: 1) name set to "interest" 2) value set to "apr%%"
-```
-e.g. <input name="interest" value="apr10" ...>
-```
-4) Expects two arguments: 1) Public API key 2) Promos Object
-```
-const promoOptions = {
-  apr10: ["promo_set_alaonly_12r_apr10_product", "promo_set_alaonly_24r_apr10_product", "promo_set_alaonly_48r_apr10_product"], 
-  apr20: ["promo_set_alaonly_12r_apr20_product", "promo_set_alaonly_24r_apr20_product", "promo_set_alaonly_48r_apr20_product"], 
-  apr30: ["promo_set_alaonly_12r_apr30_product", "promo_set_alaonly_24r_apr30_product", "promo_set_alaonly_48r_apr30_product"]  
-}
+## Quick start
 
-let example = AffirmAprCalculator("ABCDEFGHIJKLMNOPQRSTUVWXYZ", promoOptions)
-
-function foo() {
-  // do something with the AffirmAprCalculator object
-  // example.data
-}
+1. Install dependencies:
+```bash
+yarn install
 ```
 
-## Example Object
+2. Build:
+```bash
+yarn build
 ```
-{
-  apikey: String,
-  data: Object {
-    amount: String,
-    elements: Array,
-    promosIds: Object,
-    receivedData: Array,
-    urls: Array
-  }
-}
+This runs `tsc` and bundles `js/index.js` to `dist/apr_calculator.js`.
+
+3. Add to your page
+- Add a container to mount the widget:
+```html
+<div id="affirm-apr-calculator"></div>
+```
+- Include the built bundle and initialize (example):
+```html
+<script src="./dist/apr_calculator.js"></script>
+<script>
+  AffirmAprCalculator.Initialize({
+    apiKey: 'YOUR_API_KEY_HERE',
+    initialPurchaseAmount: 1500,     // dollars
+    initialSelectedApr: 0.10,        // decimal (e.g. 10% => 0.10)
+    minPurchaseAmount: 100,
+    maxPurchaseAmount: 30000,
+    plans: [
+      { apr: 0.10, months: 12 },
+      { apr: 0.10, months: 24 },
+      { apr: 0.10, months: 36 },
+      { apr: 0.20, months: 12 },
+      { apr: 0.20, months: 24 },
+      { apr: 0.20, months: 36 },
+      { apr: 0.30, months: 12 },
+      { apr: 0.30, months: 24 },
+      { apr: 0.30, months: 36 }
+    ],
+    // optional:
+    // title: 'Pay over time',
+    // subtitle: 'Choose a plan that works for you',
+    // color: '#1a73e8',
+  });
+</script>
 ```
 
-### Example Object Key-Values
+## API / Options
 
-#### apikey: String
-```
-"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-```
+Call the initializer exposed globally as `AffirmAprCalculator.Initialize(...)` with the following shape:
 
-#### amount: String
-```
-"149999"
-```
+- `apiKey` (string) — required. API key used by the client.
+- `initialPurchaseAmount` (number) — required. Initial purchase amount in dollars.
+- `initialSelectedApr` (number) — required. Decimal APR (e.g. 0.10).
+- `minPurchaseAmount` (number) — required. Minimum allowed purchase amount.
+- `maxPurchaseAmount` (number) — required. Maximum allowed purchase amount.
+- `plans` (Array<{ apr: number; months: number }>) — required. Each plan defines an APR (decimal) and length in months.
+- `title`, `subtitle`, `disclaimer`, `color` — optional UI customizations.
 
-#### elements: Array
-```
-[
-  0: div.term, 
-  1: div.term, 
-  2: div.term, 
-  3: ...div.term
-]
-```
+Mount point: The widget replaces the contents of `document.querySelector('#affirm-apr-calculator')`.
 
-#### promosIds: Object
-```
-{
-  apr10: ["promo_apr10_1", ...],
-  apr20: ["promo_apr20_1", ...],
-  apr30: ["promo_apr30_1", ...]
-}
-```
+## Project structure (important files)
+- `src/index.ts` — entry; exposes `Initialize`.
+- `src/controller.ts` — application controller (initialization, event handling).
+- `src/view.ts` — renders and updates the Lit root component.
+- `src/elements/` — web component implementations (amount input, APR list, estimates).
+- `dist/apr_calculator.js` — bundled output after `yarn build`.
 
-#### receivedData: Array
-```
-[
-  0: {
-      gid: "apr10",
-      apr: "10",
-      term: "12",
-      perMonth: "132.01",
-      total: "1584.00"
-    },
-  1: ...
-]
-```
+## Development notes
+- The view uses Web Components via `lit`.
+- Services are wired with `typedi`.
+- Input validation uses `zod`.
+- Calls to the remote estimation API are performed via the included `affirm.client` abstraction.
 
-#### urls: Array
-```
-[
-  0: "https://affirm.com/api/v2/promos/v2/ABCDEFG?promo_external_id=promo_set_alaonly_12r_apr10_product&amount=149999",
-  1: ...
-]
-```
+## Scripts
+- `yarn build` — compiles and bundles to `dist/apr_calculator.js`.
+- `yarn lint` — run ESLint and auto-fix where possible.
 
-#### TODOS (in progress)
-- add automatic data binding to term elements upon element creation
-- enable user to pass custom regexp for input format
-- enable user to pass custom HTML term element
-- create simple html markup to display example setup
+## License
+MPL 2.0

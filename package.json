@@ -1,0 +1,30 @@
+{
+  "name": "affirm-apr-calculator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:everettmorgan/apr-calculator.git",
+  "author": "everettmorgan <gitlab@foobar.mozmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "eslint": "^9.34.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "lit": "^3.3.1",
+    "lodash": "^4.17.21",
+    "reflect-metadata": "^0.2.2",
+    "typedi": "^0.10.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.20",
+    "esbuild": "^0.25.9",
+    "typescript": "^5.9.2"
+  },
+  "scripts": {
+    "lint": "yarn eslint --fix",
+    "build": "tsc && esbuild js/index.js --bundle --platform=browser --target=es2020 --outfile=dist/apr_calculator.js --minify --sourcemap --format=iife --global-name=AffirmAprCalculator"
+  }
+}

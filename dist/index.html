@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <body>
+    <div id="affirm-apr-calculator"></div>
+    <script src="./apr_calculator.js"></script>
+    <script>
+      AffirmAprCalculator.Initialize({
+        apiKey: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        initialPurchaseAmount: 1500,
+        initialSelectedApr: 0.10,
+        minPurchaseAmount: 100,
+        maxPurchaseAmount: 30000,
+        plans: [
+          { apr: 0.10, months: 12 },
+          { apr: 0.10, months: 24 },
+          { apr: 0.10, months: 36 },
+
+          { apr: 0.20, months: 12 },
+          { apr: 0.20, months: 24 },
+          { apr: 0.20, months: 36 },
+
+          { apr: 0.30, months: 12 },
+          { apr: 0.30, months: 24 },
+          { apr: 0.30, months: 36 },
+        ],
+      });
+    </script>
+  </body>
+</html>
