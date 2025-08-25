@@ -5,8 +5,8 @@ import { AffirmCalculatorRoot } from './elements/root.element';
 
 import { KV } from './lib';
 import { AffirmEstimate, AffirmPlan } from './affirm.client';
-import { AffirmCalculatorEstimates } from './elements/estimates';
-import { AffirmCalculatorApr } from './elements/aprs-element';
+import { AffirmCalculatorEstimates } from './elements/estimates.element';
+import { AffirmCalculatorApr } from './elements/aprs.element';
 
 export enum ViewEvents {
   PURCHASE_AMOUNT_CHANGED,
