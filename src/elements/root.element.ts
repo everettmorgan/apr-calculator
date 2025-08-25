@@ -1,6 +1,6 @@
-import './amount-element';
-import './aprs-element';
-import './estimates';
+import './amount.element';
+import './aprs.element';
+import './estimates.element';
 
 import _ from 'lodash';
 import { LitElement, html, css } from 'lit';
