@@ -60,6 +60,12 @@ export class AffirmAprCalculatorModel {
     return this.estimates;
   }
 
+  getEstimatesForSelectedApr(): AffirmEstimate[] {
+    return this.estimates.filter(
+      (estimate) => estimate.apr === this.selectedApr,
+    );
+  }
+
   setEstimates(newEstimates: AffirmEstimate[]) {
     this.estimates = newEstimates;
   }

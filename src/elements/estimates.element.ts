@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { LitElement, html, css } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { customElement, property } from 'lit/decorators.js';
@@ -15,7 +14,7 @@ export class AffirmCalculatorEstimates extends LitElement {
     }
     
     .affirm-calculator-estimate {
-      padding: 10px; 20px;
+      padding: 10px 20px;
       margin-bottom: 15px;
       border: 1px solid black;
       border-radius: 5px;
@@ -40,11 +39,11 @@ export class AffirmCalculatorEstimates extends LitElement {
     }];
 
   parsePayment(estimate: any) {
-    return _.isNumber(estimate) ? formatCents(estimate) : '--';
+    return typeof estimate === 'number' ? formatCents(estimate) : '--';
   }
 
   parseMonth(month: any) {
-    return _.isNumber(month) ? month : '--';
+    return typeof month === 'number' ? month : '--';
   }
 
   render() {

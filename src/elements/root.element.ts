@@ -2,7 +2,6 @@ import './amount.element';
 import './aprs.element';
 import './estimates.element';
 
-import _ from 'lodash';
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
@@ -74,7 +73,7 @@ export class AffirmCalculatorRoot extends LitElement {
     selectedApr = 0.10;
 
   getUniqueAprs() {
-    return _.uniq(this.plans.map((plan) => plan.apr));
+    return [...new Set(this.plans.map((plan) => plan.apr))];
   }
 
   render() {

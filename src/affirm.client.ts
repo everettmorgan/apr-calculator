@@ -43,6 +43,9 @@ export class AffirmClient {
     return Promise.all(plans.map(async (plan) => {
       const url = this.buildUrl(amount, plan.apr, plan.months);
       const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Affirm API error: ${response.status} ${response.statusText}`);
+      }
       const json = await response.json();
       return { ...json, apr: plan.apr, apr_string: json.apr };
     }));
