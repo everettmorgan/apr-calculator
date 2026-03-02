@@ -1,9 +1,8 @@
 import './elements/root.element';
 import { Service } from 'typedi';
-import { noop } from 'lodash';
 import { AffirmCalculatorRoot } from './elements/root.element';
 
-import { KV } from './lib';
+import { EventData } from './lib';
 import { AffirmEstimate, AffirmPlan } from './affirm.client';
 import { AffirmCalculatorEstimates } from './elements/estimates.element';
 import { AffirmCalculatorApr } from './elements/aprs.element';
@@ -14,7 +13,7 @@ export enum ViewEvents {
 }
 
 export interface OnEvent {
-  (event: ViewEvents, eventData: KV): void;
+  (event: ViewEvents, eventData: EventData): void;
 }
 
 export interface AffirmAprCalculatorViewOptions {
@@ -35,11 +34,11 @@ export class AffirmAprCalculatorView {
   private rootElement?: AffirmCalculatorRoot;
 
   initialize(options: AffirmAprCalculatorViewOptions) {
-    this.onEvent = options.onEvent ?? noop;
+    this.onEvent = options.onEvent ?? (() => {});
     this.render(options);
   }
 
-  emitEvent(event: ViewEvents, eventData: KV) {
+  emitEvent(event: ViewEvents, eventData: EventData) {
     return this.onEvent?.(event, eventData);
   }
 
@@ -80,51 +79,29 @@ export class AffirmAprCalculatorView {
     }
   }
 
-  render(options: AffirmAprCalculatorViewOptions) {
-    this.rootElement = document.createElement('affirm-calculator');
+  private render(options: AffirmAprCalculatorViewOptions) {
+    const root = document.createElement('affirm-calculator');
+    this.rootElement = root;
 
-    if (options.initialPurchaseAmount) {
-      this.rootElement.purchaseAmount = options.initialPurchaseAmount;
-    }
+    root.purchaseAmount = options.initialPurchaseAmount;
+    root.selectedApr = options.initialSelectedApr;
+    root.plans = options.plans;
+    root.estimates = options.estimates;
 
-    if (options.initialSelectedApr) {
-      this.rootElement.selectedApr = options.initialSelectedApr;
-    }
+    if (options.title) root.title = options.title;
+    if (options.subtitle) root.subtitle = options.subtitle;
+    if (options.color) root.color = options.color;
 
-    if (options.title) {
-      this.rootElement.title = options.title;
-    }
-
-    if (options.subtitle) {
-      this.rootElement.subtitle = options.subtitle;
-    }
-
-    if (options.color) {
-      this.rootElement.color = options.color;
-    }
-
-    if (options.plans) {
-      this.rootElement.plans = options.plans;
-    }
-
-    if (options.estimates) {
-      this.rootElement.estimates = options.estimates;
-    }
-
-    if (options.color) {
-      this.rootElement.color = options.color;
-    }
-
-    this.rootElement.addEventListener('affirm-amount-changed', (event: Event) => {
-      const customEvent = event as CustomEvent<{ newAmount: number }>;
-      this.emitEvent(ViewEvents.PURCHASE_AMOUNT_CHANGED, { amount: customEvent.detail.newAmount });
+    root.addEventListener('affirm-amount-changed', (event: Event) => {
+      const { newAmount } = (event as CustomEvent<{ newAmount: number }>).detail;
+      this.emitEvent(ViewEvents.PURCHASE_AMOUNT_CHANGED, { amount: newAmount });
     });
 
-    this.rootElement.addEventListener('affirm-apr-changed', (event: Event) => {
-      const customEvent = event as CustomEvent<{ newApr: number }>;
-      this.emitEvent(ViewEvents.SELECTED_APR_CHANGED, { selectedApr: customEvent.detail.newApr });
+    root.addEventListener('affirm-apr-changed', (event: Event) => {
+      const { newApr } = (event as CustomEvent<{ newApr: number }>).detail;
+      this.emitEvent(ViewEvents.SELECTED_APR_CHANGED, { selectedApr: newApr });
     });
 
-    document.querySelector('#affirm-apr-calculator')?.replaceChildren(this.rootElement);
+    document.querySelector('#affirm-apr-calculator')?.replaceChildren(root);
   }
 }
