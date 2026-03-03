@@ -1,6 +1,5 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { emitEvent } from '../lib';
 
 @customElement('affirm-calculator-amount')
 export class AffirmCalculatorAmountInput extends LitElement {
@@ -11,7 +10,7 @@ export class AffirmCalculatorAmountInput extends LitElement {
       justify-content: stretch;
       width: 100%;
     }
-    
+
     #affirm-calculator-amount input {
       padding: 15px;
       font-size: 18px;
@@ -20,11 +19,15 @@ export class AffirmCalculatorAmountInput extends LitElement {
   `;
 
   @property({ type: Number })
-    amount = 1000;
+    amount = 0;
 
-  onChange(event: Event) {
+  private onChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    emitEvent.call(this, 'affirm-amount-changed', { newAmount: parseFloat(target.value) });
+    this.dispatchEvent(new CustomEvent('affirm-amount-changed', {
+      detail: { newAmount: parseFloat(target.value) },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   render() {

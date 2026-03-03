@@ -1,7 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { customElement, property } from 'lit/decorators.js';
-import { emitEvent } from '../lib';
 
 @customElement('affirm-calculator-aprs')
 export class AffirmCalculatorApr extends LitElement {
@@ -11,16 +10,17 @@ export class AffirmCalculatorApr extends LitElement {
       grid-template-columns: 1fr 1fr 1fr;
       grid-template-rows: 1fr;
       gap: 0px 5px;
-    }  
+    }
 
-    #affirm-calculator-apr {
+    .affirm-calculator-apr {
       padding: 10px;
       border: 1px solid;
       border-radius: 5px;
       background-color: #f4f4f4;
       display: inline-block;
       text-align: center;
-      opacity: 0.5
+      opacity: 0.5;
+      cursor: pointer;
     }
 
     .active {
@@ -30,23 +30,30 @@ export class AffirmCalculatorApr extends LitElement {
   `;
 
   @property({ type: Array })
-    aprs = [0.10, 0.20, 0.30];
+    aprs: number[] = [];
 
   @property({ type: Number })
-    selectedApr = 0.10;
+    selectedApr = 0;
 
   @property({ type: String })
     color = '#f4f4f4';
 
-  onChange(event: Event) {
-    const target = event.target as any;
-    const selectedApr = target['data-value'];
+  private onAprClick(event: Event) {
+    const target = event.currentTarget as HTMLElement;
+    const aprValue = target.dataset.apr;
+    if (!aprValue) return;
+
+    const selectedApr = parseFloat(aprValue);
     this.selectedApr = selectedApr;
-    emitEvent.call(this, 'affirm-apr-changed', { newApr: selectedApr });
+    this.dispatchEvent(new CustomEvent('affirm-apr-changed', {
+      detail: { newApr: selectedApr },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
-  getClasses(apr: number) {
-    return apr === this.selectedApr ? 'active' : '';
+  private getClasses(apr: number): string {
+    return apr === this.selectedApr ? 'affirm-calculator-apr active' : 'affirm-calculator-apr';
   }
 
   render() {
@@ -57,7 +64,7 @@ export class AffirmCalculatorApr extends LitElement {
         </div>
         <div id="affirm-calculator-aprs">
           ${repeat(this.aprs, (apr) => apr, (apr) => html`
-              <div id="affirm-calculator-apr" class="${this.getClasses(apr)}" .data-value=${apr} @click=${this.onChange}>${apr * 100}%</div>
+              <div class="${this.getClasses(apr)}" data-apr="${apr}" @click=${this.onAprClick}>${apr * 100}%</div>
           `)}
         </div>
       </div>

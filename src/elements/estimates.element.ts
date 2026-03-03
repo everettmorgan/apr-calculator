@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { customElement, property } from 'lit/decorators.js';
+import { Estimate } from '../domain/types';
 import { formatCents } from '../lib';
 
 @customElement('affirm-calculator-estimates')
@@ -12,7 +13,7 @@ export class AffirmCalculatorEstimates extends LitElement {
       grid-template-columns: 1fr;
       width: 100%;
     }
-    
+
     .affirm-calculator-estimate {
       padding: 10px 20px;
       margin-bottom: 15px;
@@ -29,21 +30,14 @@ export class AffirmCalculatorEstimates extends LitElement {
   `;
 
   @property({ type: Array })
-    estimates = [{
-      apr: 0.10,
-      apr_string: '10.12',
-      disclosure: 'Based on the purchase price of $1500.00 at 10% APR for 12 months',
-      months: 12,
-      payment: 13198,
-      payment_string: '132',
-    }];
+    estimates: Estimate[] = [];
 
-  parsePayment(estimate: any) {
-    return typeof estimate === 'number' ? formatCents(estimate) : '--';
+  private formatPayment(payment: number): string {
+    return typeof payment === 'number' ? formatCents(payment) : '--';
   }
 
-  parseMonth(month: any) {
-    return typeof month === 'number' ? month : '--';
+  private formatMonths(months: number): string {
+    return typeof months === 'number' ? String(months) : '--';
   }
 
   render() {
@@ -51,7 +45,7 @@ export class AffirmCalculatorEstimates extends LitElement {
       <div id="affirm-calculator-estimates">
         ${repeat(this.estimates, (estimate) => estimate.disclosure, (estimate) => html`
             <div class="affirm-calculator-estimate">
-                <p><span class="bold">$${this.parsePayment(estimate.payment)}/mo</span> for <span class="bold">${this.parseMonth(estimate.months)} months</span></p>
+                <p><span class="bold">$${this.formatPayment(estimate.payment)}/mo</span> for <span class="bold">${this.formatMonths(estimate.months)} months</span></p>
             </div>
         `)}
       </div>

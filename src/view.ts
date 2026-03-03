@@ -1,90 +1,21 @@
 import './elements/root.element';
 import { Service } from 'typedi';
 import { AffirmCalculatorRoot } from './elements/root.element';
+import { ViewEvents } from './events/view-events';
+import { ICalculatorView, ViewMountOptions, ViewState, VIEW_TOKEN } from './domain/ports';
 
-import { EventData } from './lib';
-import { AffirmEstimate, AffirmPlan } from './affirm.client';
-import { AffirmCalculatorEstimates } from './elements/estimates.element';
-import { AffirmCalculatorApr } from './elements/aprs.element';
+const DEFAULT_MOUNT_SELECTOR = '#affirm-apr-calculator';
 
-export enum ViewEvents {
-  PURCHASE_AMOUNT_CHANGED,
-  SELECTED_APR_CHANGED
-}
-
-export interface OnEvent {
-  (event: ViewEvents, eventData: EventData): void;
-}
-
-export interface AffirmAprCalculatorViewOptions {
-  title?: string;
-  subtitle?: string;
-  color?: string;
-  initialPurchaseAmount: number;
-  initialSelectedApr: number;
-  plans: AffirmPlan[];
-  estimates: AffirmEstimate[];
-  onEvent?: OnEvent;
-}
-
-@Service()
-export class AffirmAprCalculatorView {
-  private onEvent?: OnEvent;
-
+@Service({ id: VIEW_TOKEN })
+export class CalculatorView implements ICalculatorView {
   private rootElement?: AffirmCalculatorRoot;
 
-  initialize(options: AffirmAprCalculatorViewOptions) {
-    this.onEvent = options.onEvent ?? (() => {});
-    this.render(options);
-  }
-
-  emitEvent(event: ViewEvents, eventData: EventData) {
-    return this.onEvent?.(event, eventData);
-  }
-
-  updatePurchaseAmount(newAmount: number) {
-    if (this.rootElement) {
-      const old = this.rootElement.purchaseAmount;
-      this.rootElement.purchaseAmount = newAmount;
-      this.rootElement.requestUpdate('purchaseAmount', old);
-    }
-  }
-
-  updateSelectedApr(newApr: number) {
-    const { rootElement } = this;
-
-    if (rootElement) {
-      const old = rootElement.selectedApr;
-      rootElement.selectedApr = newApr;
-      rootElement.requestUpdate('selectedApr', old);
-
-      const estimatesElement = rootElement.shadowRoot?.querySelector('affirm-calculator-aprs') as AffirmCalculatorApr;
-      estimatesElement.selectedApr = newApr;
-      estimatesElement.requestUpdate('selectedApr', old);
-    }
-  }
-
-  updateEstimates(newEstimates: AffirmEstimate[]) {
-    const { rootElement } = this;
-
-    if (rootElement) {
-      const old = rootElement.estimates;
-
-      rootElement.estimates = newEstimates;
-      rootElement.requestUpdate('estimates', old);
-
-      const estimatesElement = rootElement.shadowRoot?.querySelector('affirm-calculator-estimates') as AffirmCalculatorEstimates;
-      estimatesElement.estimates = newEstimates;
-      estimatesElement.requestUpdate('estimates', old);
-    }
-  }
-
-  private render(options: AffirmAprCalculatorViewOptions) {
+  mount(options: ViewMountOptions): void {
     const root = document.createElement('affirm-calculator');
     this.rootElement = root;
 
-    root.purchaseAmount = options.initialPurchaseAmount;
-    root.selectedApr = options.initialSelectedApr;
+    root.purchaseAmount = options.purchaseAmount;
+    root.selectedApr = options.selectedApr;
     root.plans = options.plans;
     root.estimates = options.estimates;
 
@@ -94,14 +25,33 @@ export class AffirmAprCalculatorView {
 
     root.addEventListener('affirm-amount-changed', (event: Event) => {
       const { newAmount } = (event as CustomEvent<{ newAmount: number }>).detail;
-      this.emitEvent(ViewEvents.PURCHASE_AMOUNT_CHANGED, { amount: newAmount });
+      options.onEvent(ViewEvents.PURCHASE_AMOUNT_CHANGED, { amount: newAmount });
     });
 
     root.addEventListener('affirm-apr-changed', (event: Event) => {
       const { newApr } = (event as CustomEvent<{ newApr: number }>).detail;
-      this.emitEvent(ViewEvents.SELECTED_APR_CHANGED, { selectedApr: newApr });
+      options.onEvent(ViewEvents.SELECTED_APR_CHANGED, { selectedApr: newApr });
     });
 
-    document.querySelector('#affirm-apr-calculator')?.replaceChildren(root);
+    const selector = options.mountSelector ?? DEFAULT_MOUNT_SELECTOR;
+    const container = document.querySelector(selector);
+    if (!container) {
+      throw new Error(`Mount target not found: ${selector}`);
+    }
+    container.replaceChildren(root);
+  }
+
+  updateState(state: ViewState): void {
+    if (!this.rootElement) return;
+
+    if (state.purchaseAmount !== undefined) {
+      this.rootElement.purchaseAmount = state.purchaseAmount;
+    }
+    if (state.selectedApr !== undefined) {
+      this.rootElement.selectedApr = state.selectedApr;
+    }
+    if (state.estimates !== undefined) {
+      this.rootElement.estimates = state.estimates;
+    }
   }
 }

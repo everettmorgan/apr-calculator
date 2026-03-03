@@ -1,15 +1,3 @@
-export interface EventData {
-  [key: string]: unknown;
-}
-
-export function emitEvent(this: Element, name: string, detail: EventData) {
-  this.dispatchEvent(new CustomEvent(name, {
-    detail,
-    bubbles: true,
-    composed: true,
-  }));
-}
-
 export function dollarsTocents(dollars: number): number {
   return dollars * 100;
 }

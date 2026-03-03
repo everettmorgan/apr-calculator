@@ -4,6 +4,7 @@ import './estimates.element';
 
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { Plan, Estimate } from '../domain/types';
 
 @customElement('affirm-calculator')
 export class AffirmCalculatorRoot extends LitElement {
@@ -54,25 +55,18 @@ export class AffirmCalculatorRoot extends LitElement {
     color = '#f4f4f4';
 
   @property({ type: Array })
-    plans = [{ apr: 0.10, months: 12 }];
+    plans: Plan[] = [];
 
   @property({ type: Array })
-    estimates = [{
-      apr: 0.10,
-      apr_string: '10.12',
-      disclosure: 'Based on the purchase price of $1500.00 at 10% APR for 12 months',
-      months: 12,
-      payment: 13198,
-      payment_string: '132',
-    }];
+    estimates: Estimate[] = [];
 
   @property({ type: Number })
-    purchaseAmount = 1000;
+    purchaseAmount = 0;
 
   @property({ type: Number })
-    selectedApr = 0.10;
+    selectedApr = 0;
 
-  getUniqueAprs() {
+  private getUniqueAprs(): number[] {
     return [...new Set(this.plans.map((plan) => plan.apr))];
   }
 
@@ -86,7 +80,7 @@ export class AffirmCalculatorRoot extends LitElement {
           <div id="affirm-calculator-body">
             <div id="affirm-calculator-settings">
               <div><affirm-calculator-amount .amount=${this.purchaseAmount}></affirm-calculator-amount></div>
-              <div><affirm-calculator-aprs .color=${this.color} .aprs=${this.getUniqueAprs()}></affirm-calculator-aprs></div>
+              <div><affirm-calculator-aprs .color=${this.color} .aprs=${this.getUniqueAprs()} .selectedApr=${this.selectedApr}></affirm-calculator-aprs></div>
             </div>
             <div id="affirm-calculator-terms">
               <affirm-calculator-estimates .estimates=${this.estimates}></affirm-calculator-estimates>
