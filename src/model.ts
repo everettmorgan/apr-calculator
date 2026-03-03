@@ -1,72 +1,49 @@
 import { Service } from 'typedi';
-import { AffirmEstimate, AffirmPlan } from './affirm.client';
+import { Plan, Estimate } from './domain/types';
+import { ICalculatorModel, MODEL_TOKEN } from './domain/ports';
 
-interface AffirmCalculatorModelOptions {
-  initialPurchaseAmount: number;
-  initialSelectedApr: number;
-  plans: AffirmPlan[];
-  estimates: AffirmEstimate[];
-}
+@Service({ id: MODEL_TOKEN })
+export class CalculatorModel implements ICalculatorModel {
+  private purchaseAmount = 0;
+  private selectedApr = 0;
+  private plans: Plan[] = [];
+  private estimates: Estimate[] = [];
 
-@Service()
-export class AffirmAprCalculatorModel {
-  private purchaseAmount: number;
-
-  private selectedApr: number;
-
-  private plans: AffirmPlan[];
-
-  private estimates: AffirmEstimate[];
-
-  constructor() {
-    this.purchaseAmount = 0;
-    this.selectedApr = 0;
-    this.plans = [];
-    this.estimates = [];
-  }
-
-  initialize(options: AffirmCalculatorModelOptions) {
-    this.purchaseAmount = options.initialPurchaseAmount;
-    this.selectedApr = options.initialSelectedApr;
-    this.estimates = options.estimates;
-    this.plans = options.plans;
-  }
-
-  getPurchaseAmount() {
+  getPurchaseAmount(): number {
     return this.purchaseAmount;
   }
 
-  setPurchaseAmount(amount: number) {
+  setPurchaseAmount(amount: number): void {
     this.purchaseAmount = amount;
   }
 
-  getSelectedApr() {
+  getSelectedApr(): number {
     return this.selectedApr;
   }
 
-  setSelectedApr(apr: number) {
+  setSelectedApr(apr: number): void {
     this.selectedApr = apr;
   }
 
-  getPlans() {
+  getPlans(): Plan[] {
     return [...this.plans];
   }
 
-  setPlans(plans: AffirmPlan[]) {
+  setPlans(plans: Plan[]): void {
     this.plans = plans;
   }
 
-  getEstimates() {
+  getEstimates(): Estimate[] {
     return this.estimates;
   }
 
-  getEstimatesForSelectedApr(): AffirmEstimate[] {
+  getEstimatesForSelectedApr(): Estimate[] {
     return this.estimates.filter(
       (estimate) => estimate.apr === this.selectedApr,
     );
   }
 
-  setEstimates(newEstimates: AffirmEstimate[]) {
-    this.estimates = newEstimates;
+  setEstimates(estimates: Estimate[]): void {
+    this.estimates = estimates;
   }
 }

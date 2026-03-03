@@ -1,113 +1,99 @@
-import * as z from 'zod';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
+import { dollarsTocents } from './lib';
+import { Plan } from './domain/types';
+import {
+  ICalculatorModel, ICalculatorView, IEstimateService,
+  MODEL_TOKEN, VIEW_TOKEN, ESTIMATE_SERVICE_TOKEN,
+} from './domain/ports';
+import { ViewEvents } from './events/view-events';
+import { PurchaseAmountChangedEvent, SelectedAprChangedEvent } from './events/schemas';
+import { InvalidEventError } from './events/errors';
+import { CalculatorConfig, ViewConfig } from './config/options';
 
-import { EventData, dollarsTocents } from './lib';
-import { AffirmAprCalculatorModel } from './model';
-import { AffirmAprCalculatorView, ViewEvents } from './view';
-import { AffirmClient, AffirmPlan } from './affirm.client';
-
-const PurchaseAmountChangedEvent = z.object({
-  amount: z.number(),
-});
-
-const SelectedAprChangedEvent = z.object({
-  selectedApr: z.number(),
-});
-
-type PurchaseAmountChangedEvent = z.infer<typeof PurchaseAmountChangedEvent>;
-type SelectedAprChangedEvent = z.infer<typeof SelectedAprChangedEvent>;
-
-class InvalidEvent extends Error {
-  constructor(event: ViewEvents, data: string) {
-    super(`received an invalid event: ${event}: ${data}`);
-  }
-}
-
-export type AffirmCalculatorControllerOptions = {
-  apiKey: string;
-  plans: AffirmPlan[];
-  initialPurchaseAmount: number;
-  initialSelectedApr: number;
-  maxPurchaseAmount: number;
-  minPurchaseAmount: number;
-  title?: string;
-  subtitle?: string;
-  disclaimer?: string;
-  color?: string;
-}
+type EventHandler = (data: Record<string, unknown>) => void;
 
 @Service()
-export class AffirmAprCalculatorController {
+export class CalculatorController {
+  private readonly eventHandlers: Map<ViewEvents, EventHandler>;
+
   constructor(
-    private model: AffirmAprCalculatorModel,
-    private view: AffirmAprCalculatorView,
-    private affirmClient: AffirmClient,
-  ) {}
+    @Inject(MODEL_TOKEN) private model: ICalculatorModel,
+    @Inject(VIEW_TOKEN) private view: ICalculatorView,
+    @Inject(ESTIMATE_SERVICE_TOKEN) private estimateService: IEstimateService,
+  ) {
+    this.eventHandlers = new Map([
+      [ViewEvents.PURCHASE_AMOUNT_CHANGED, (data) => this.handlePurchaseAmountChanged(data)],
+      [ViewEvents.SELECTED_APR_CHANGED, (data) => this.handleSelectedAprChanged(data)],
+    ]);
+  }
 
-  async initialize(options: AffirmCalculatorControllerOptions) {
-    const { initialPurchaseAmount, initialSelectedApr, plans, apiKey, color } = options;
+  async initialize(config: CalculatorConfig, viewConfig?: ViewConfig): Promise<void> {
+    const { initialPurchaseAmount, initialSelectedApr, plans } = config;
 
-    this.affirmClient.initialize({ apiKey });
+    this.initializeModel(initialPurchaseAmount, initialSelectedApr, plans);
 
-    const estimates = await this.affirmClient.getEstimates(
+    const estimates = await this.estimateService.getEstimates(
       dollarsTocents(initialPurchaseAmount),
       plans,
     );
+    this.model.setEstimates(estimates);
 
-    this.model.initialize({
-      initialPurchaseAmount,
-      initialSelectedApr,
+    this.view.mount({
+      purchaseAmount: initialPurchaseAmount,
+      selectedApr: initialSelectedApr,
       plans,
-      estimates,
-    });
-
-    this.view.initialize({
-      initialPurchaseAmount,
-      initialSelectedApr,
-      plans,
-      color,
       estimates: this.model.getEstimatesForSelectedApr(),
-      onEvent: (event, eventData) => this.handleViewEvent(event, eventData),
+      title: viewConfig?.title,
+      subtitle: viewConfig?.subtitle,
+      color: viewConfig?.color,
+      mountSelector: viewConfig?.mountSelector,
+      onEvent: (event, data) => this.handleViewEvent(event, data),
     });
   }
 
-  private handleViewEvent(event: ViewEvents, eventData: EventData) {
-    if (event === ViewEvents.PURCHASE_AMOUNT_CHANGED) {
-      const parsed = PurchaseAmountChangedEvent.safeParse(eventData);
-      if (!parsed.success) {
-        throw new InvalidEvent(event, JSON.stringify(eventData));
-      }
-      this.handlePurchaseAmountChanged(parsed.data);
+  private initializeModel(purchaseAmount: number, selectedApr: number, plans: Plan[]): void {
+    this.model.setPurchaseAmount(purchaseAmount);
+    this.model.setSelectedApr(selectedApr);
+    this.model.setPlans(plans);
+  }
+
+  private handleViewEvent(event: ViewEvents, data: Record<string, unknown>): void {
+    const handler = this.eventHandlers.get(event);
+    if (handler) {
+      handler(data);
       return;
     }
-
-    if (event === ViewEvents.SELECTED_APR_CHANGED) {
-      const parsed = SelectedAprChangedEvent.safeParse(eventData);
-      if (!parsed.success) {
-        throw new InvalidEvent(event, JSON.stringify(eventData));
-      }
-      this.handleSelectedAprChanged(parsed.data);
-      return;
-    }
-
     console.warn(`received an unexpected event: ${event}, ignoring...`);
   }
 
-  private async handlePurchaseAmountChanged(event: PurchaseAmountChangedEvent) {
-    this.model.setPurchaseAmount(event.amount);
-    this.view.updatePurchaseAmount(event.amount);
+  private handlePurchaseAmountChanged(data: Record<string, unknown>): void {
+    const parsed = PurchaseAmountChangedEvent.safeParse(data);
+    if (!parsed.success) {
+      throw new InvalidEventError(ViewEvents.PURCHASE_AMOUNT_CHANGED, JSON.stringify(data));
+    }
 
-    const estimates = await this.affirmClient.getEstimates(
+    this.model.setPurchaseAmount(parsed.data.amount);
+    this.view.updateState({ purchaseAmount: parsed.data.amount });
+
+    this.estimateService.getEstimates(
       dollarsTocents(this.model.getPurchaseAmount()),
       this.model.getPlans(),
-    );
-    this.model.setEstimates(estimates);
-    this.view.updateEstimates(this.model.getEstimatesForSelectedApr());
+    ).then((estimates) => {
+      this.model.setEstimates(estimates);
+      this.view.updateState({ estimates: this.model.getEstimatesForSelectedApr() });
+    });
   }
 
-  private handleSelectedAprChanged(event: SelectedAprChangedEvent) {
-    this.model.setSelectedApr(event.selectedApr);
-    this.view.updateSelectedApr(this.model.getSelectedApr());
-    this.view.updateEstimates(this.model.getEstimatesForSelectedApr());
+  private handleSelectedAprChanged(data: Record<string, unknown>): void {
+    const parsed = SelectedAprChangedEvent.safeParse(data);
+    if (!parsed.success) {
+      throw new InvalidEventError(ViewEvents.SELECTED_APR_CHANGED, JSON.stringify(data));
+    }
+
+    this.model.setSelectedApr(parsed.data.selectedApr);
+    this.view.updateState({
+      selectedApr: this.model.getSelectedApr(),
+      estimates: this.model.getEstimatesForSelectedApr(),
+    });
   }
 }

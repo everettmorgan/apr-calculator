@@ -1,53 +1,35 @@
-import { Service } from 'typedi';
+import { Plan, Estimate } from './domain/types';
+import { IEstimateService } from './domain/ports';
 
 const AFFIRM_BASE_URL = 'https://calculator.affirm.com/promos/payment_estimate_path';
 
-export interface AffirmPlan {
-    apr: number;
-    months: number;
-}
+export class AffirmEstimateService implements IEstimateService {
+  private readonly apiKey: string;
+  private readonly baseUrl: string;
 
-export interface AffirmEstimate {
-  apr: number;
-  apr_string: string;
-  disclosure: string;
-  months: number;
-  payment: number;
-  payment_string: string;
-}
-
-interface AffirmClientOptions {
-  apiKey: string;
-}
-
-@Service()
-export class AffirmClient {
-  private apiKey: string;
-
-  private baseUrl: string;
-
-  constructor() {
-    this.apiKey = '';
-    this.baseUrl = AFFIRM_BASE_URL;
+  constructor(apiKey: string, baseUrl = AFFIRM_BASE_URL) {
+    this.apiKey = apiKey;
+    this.baseUrl = baseUrl;
   }
 
-  initialize(options: AffirmClientOptions) {
-    this.apiKey = options.apiKey;
+  async getEstimates(amountCents: number, plans: Plan[]): Promise<Estimate[]> {
+    return Promise.all(plans.map((plan) => this.fetchEstimate(amountCents, plan)));
   }
 
-  private buildUrl(amount: number, apr: number, months: number) {
-    return `${this.baseUrl}/${this.apiKey}/${apr}/${amount}/${months}`;
-  }
-
-  async getEstimates(amount: number, plans: AffirmPlan[]): Promise<AffirmEstimate[]> {
-    return Promise.all(plans.map(async (plan) => {
-      const url = this.buildUrl(amount, plan.apr, plan.months);
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Affirm API error: ${response.status} ${response.statusText}`);
-      }
-      const json = await response.json();
-      return { ...json, apr: plan.apr, apr_string: json.apr };
-    }));
+  private async fetchEstimate(amountCents: number, plan: Plan): Promise<Estimate> {
+    const url = `${this.baseUrl}/${this.apiKey}/${plan.apr}/${amountCents}/${plan.months}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Affirm API error: ${response.status} ${response.statusText}`);
+    }
+    const json = await response.json();
+    return {
+      apr: plan.apr,
+      aprString: String(json.apr),
+      disclosure: json.disclosure,
+      months: json.months,
+      payment: json.payment,
+      paymentString: json.payment_string,
+    };
   }
 }
