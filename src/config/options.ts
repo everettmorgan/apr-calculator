@@ -16,7 +16,3 @@ export interface ViewConfig {
   color?: string;
   mountSelector?: string;
 }
-
-export interface AprCalculatorOptions extends ApiConfig, CalculatorConfig {
-  view?: ViewConfig;
-}
