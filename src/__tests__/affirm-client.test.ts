@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+  describe, it, expect, vi, beforeEach,
+} from 'vitest';
 import { AffirmEstimateService } from '../affirm.client';
 import { Plan } from '../domain/types';
 
@@ -14,7 +16,9 @@ describe('AffirmEstimateService', () => {
   it('constructs correct URL', async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ apr: '10', disclosure: 'test', months: 12, payment: 13198, payment_string: '131.98' }),
+      json: () => Promise.resolve({
+        apr: '10', disclosure: 'test', months: 12, payment: 13198, payment_string: '131.98',
+      }),
     });
     vi.stubGlobal('fetch', mockFetch);
 
@@ -50,7 +54,9 @@ describe('AffirmEstimateService', () => {
   it('fetches all plans in parallel', async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ apr: '10', disclosure: 'test', months: 12, payment: 100, payment_string: '1' }),
+      json: () => Promise.resolve({
+        apr: '10', disclosure: 'test', months: 12, payment: 100, payment_string: '1',
+      }),
     });
     vi.stubGlobal('fetch', mockFetch);
 
