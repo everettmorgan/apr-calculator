@@ -1,8 +1,8 @@
 # Affirm APR Calculator
 
-A small, embeddable APR estimator built with TypeScript and Web Components (Lit). The library exposes a single initializer and renders an interactive APR/payment estimate UI into a host container.
+A small, embeddable APR estimator built with TypeScript and Web Components (Lit). The library exposes a fluent builder API and renders an interactive APR/payment estimate UI into a host container.
 
-- Built with: `TypeScript`, `lit`, `typedi`, `zod`, `lodash`
+- Built with: `TypeScript`, `lit`, `typedi`, `zod`
 - Output: `dist/apr_calculator.js` (bundled, minified, global name `AffirmAprCalculator`)
 
 ## Quick start
@@ -16,24 +16,17 @@ yarn install
 ```bash
 yarn build
 ```
-This runs `tsc` and bundles `js/index.js` to `dist/apr_calculator.js`.
+This runs `tsc` and bundles `js/index.js` to `dist/apr_calculator.js` via `esbuild`.
 
 3. Add to your page
-- Add a container to mount the widget:
+- Include the built bundle and initialize using the builder API:
 ```html
 <div id="affirm-apr-calculator"></div>
-```
-- Include the built bundle and initialize (example):
-```html
+
 <script src="./dist/apr_calculator.js"></script>
 <script>
-  AffirmAprCalculator.Initialize({
-    apiKey: 'YOUR_API_KEY_HERE',
-    initialPurchaseAmount: 1500,     // dollars
-    initialSelectedApr: 0.10,        // decimal (e.g. 10% => 0.10)
-    minPurchaseAmount: 100,
-    maxPurchaseAmount: 30000,
-    plans: [
+  AffirmAprCalculator.create({ apiKey: 'YOUR_API_KEY_HERE' })
+    .withPlans([
       { apr: 0.10, months: 12 },
       { apr: 0.10, months: 24 },
       { apr: 0.10, months: 36 },
@@ -42,35 +35,54 @@ This runs `tsc` and bundles `js/index.js` to `dist/apr_calculator.js`.
       { apr: 0.20, months: 36 },
       { apr: 0.30, months: 12 },
       { apr: 0.30, months: 24 },
-      { apr: 0.30, months: 36 }
-    ],
-    // optional:
-    // title: 'Pay over time',
-    // subtitle: 'Choose a plan that works for you',
-    // color: '#1a73e8',
-  });
+      { apr: 0.30, months: 36 },
+    ])
+    .withInitialState({ purchaseAmount: 1500, selectedApr: 0.10 })
+    .withViewOptions({
+      title: 'Pay over time',
+      subtitle: 'Choose a plan that works for you',
+      color: '#1a73e8',
+      mountSelector: '#affirm-apr-calculator',
+    })
+    .mount();
 </script>
 ```
 
-## API / Options
+## API
 
-Call the initializer exposed globally as `AffirmAprCalculator.Initialize(...)` with the following shape:
+The library exposes a single `create()` function globally as `AffirmAprCalculator.create(...)`. It returns a builder with the following methods:
 
-- `apiKey` (string) — required. API key used by the client.
-- `initialPurchaseAmount` (number) — required. Initial purchase amount in dollars.
-- `initialSelectedApr` (number) — required. Decimal APR (e.g. 0.10).
-- `minPurchaseAmount` (number) — required. Minimum allowed purchase amount.
-- `maxPurchaseAmount` (number) — required. Maximum allowed purchase amount.
-- `plans` (Array<{ apr: number; months: number }>) — required. Each plan defines an APR (decimal) and length in months.
-- `title`, `subtitle`, `disclaimer`, `color` — optional UI customizations.
+### `create(apiConfig?)`
+Creates a new builder instance. Optionally accepts `{ apiKey: string }`.
 
-Mount point: The widget replaces the contents of `document.querySelector('#affirm-apr-calculator')`.
+### `.withApiKey(apiKey: string)`
+Sets the API key used by the estimate client.
+
+### `.withPlans(plans: Array<{ apr: number; months: number }>)`
+Defines the available financing plans. Each plan specifies:
+- `apr` — decimal APR (e.g. `0.10` for 10%)
+- `months` — loan length in months
+
+### `.withInitialState({ purchaseAmount: number; selectedApr: number })`
+Sets the initial purchase amount (dollars) and initially selected APR (decimal).
+
+### `.withViewOptions(options)`
+Optional UI customizations:
+- `title` (string) — widget heading
+- `subtitle` (string) — widget subheading
+- `color` (string) — accent color (CSS color value)
+- `mountSelector` (string) — CSS selector for the mount container (default: `#affirm-apr-calculator`)
+
+### `.mount(selector?)`
+Validates the configuration and mounts the widget. Optionally accepts a CSS selector to override `mountSelector`.
 
 ## Project structure (important files)
-- `src/index.ts` — entry; exposes `Initialize`.
+- `src/index.ts` — entry; exposes `create`.
 - `src/controller.ts` — application controller (initialization, event handling).
 - `src/view.ts` — renders and updates the Lit root component.
 - `src/elements/` — web component implementations (amount input, APR list, estimates).
+- `src/config/options.ts` — TypeScript interfaces for config types.
+- `src/config/validation.ts` — Zod schema for runtime validation.
 - `dist/apr_calculator.js` — bundled output after `yarn build`.
 
 ## Development notes
@@ -80,8 +92,10 @@ Mount point: The widget replaces the contents of `document.querySelector('#affir
 - Calls to the remote estimation API are performed via the included `affirm.client` abstraction.
 
 ## Scripts
-- `yarn build` — compiles and bundles to `dist/apr_calculator.js`.
+- `yarn build` — compiles TypeScript and bundles to `dist/apr_calculator.js`.
 - `yarn lint` — run ESLint and auto-fix where possible.
+- `yarn test` — run the full test suite once.
+- `yarn test:watch` — run tests in watch mode.
 
 ## License
-MPL 2.0
+MIT
