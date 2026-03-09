@@ -1,4 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import {
+  describe, it, expect, beforeEach,
+} from 'vitest';
 import { CalculatorModel } from '../model';
 import { Estimate, Plan } from '../domain/types';
 

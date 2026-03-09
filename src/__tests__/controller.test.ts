@@ -1,6 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+  describe, it, expect, vi, beforeEach,
+} from 'vitest';
 import { CalculatorController } from '../controller';
-import { ICalculatorModel, ICalculatorView, IEstimateService, ViewMountOptions } from '../domain/ports';
+import {
+  ICalculatorModel, ICalculatorView, IEstimateService, ViewMountOptions,
+} from '../domain/ports';
 import { Estimate, Plan } from '../domain/types';
 import { ViewEvents } from '../events/view-events';
 import { InvalidEventError } from '../events/errors';
@@ -58,6 +62,11 @@ const allEstimates: Estimate[] = [
   makeEstimate(0.20, 24),
 ];
 
+function getMountArgs(view: ICalculatorView): ViewMountOptions {
+  const mock = view.mount as ReturnType<typeof vi.fn>;
+  return mock.mock.calls[0][0] as ViewMountOptions;
+}
+
 describe('CalculatorController', () => {
   let model: ICalculatorModel;
   let view: ICalculatorView;
@@ -93,7 +102,7 @@ describe('CalculatorController', () => {
     it('calls view.mount with filtered estimates for selected APR', async () => {
       await controller.initialize({ plans, initialPurchaseAmount: 1500, initialSelectedApr: 0.10 });
       expect(view.mount).toHaveBeenCalledTimes(1);
-      const mountArgs = (view.mount as ReturnType<typeof vi.fn>).mock.calls[0][0] as ViewMountOptions;
+      const mountArgs = getMountArgs(view);
       expect(mountArgs.purchaseAmount).toBe(1500);
       expect(mountArgs.selectedApr).toBe(0.10);
       expect(mountArgs.plans).toEqual(plans);
@@ -104,7 +113,7 @@ describe('CalculatorController', () => {
         { plans, initialPurchaseAmount: 1500, initialSelectedApr: 0.10 },
         { title: 'My Title', color: '#000' },
       );
-      const mountArgs = (view.mount as ReturnType<typeof vi.fn>).mock.calls[0][0] as ViewMountOptions;
+      const mountArgs = getMountArgs(view);
       expect(mountArgs.title).toBe('My Title');
       expect(mountArgs.color).toBe('#000');
     });
@@ -115,7 +124,7 @@ describe('CalculatorController', () => {
 
     beforeEach(async () => {
       await controller.initialize({ plans, initialPurchaseAmount: 1500, initialSelectedApr: 0.10 });
-      const mountArgs = (view.mount as ReturnType<typeof vi.fn>).mock.calls[0][0] as ViewMountOptions;
+      const mountArgs = getMountArgs(view);
       onEvent = mountArgs.onEvent;
     });
 

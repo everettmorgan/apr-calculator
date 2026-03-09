@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+  describe, it, expect, vi, beforeEach,
+} from 'vitest';
 import '../elements/root.element';
 import { CalculatorView } from '../view';
 import { ViewMountOptions } from '../domain/ports';

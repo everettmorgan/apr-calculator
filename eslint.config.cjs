@@ -5,7 +5,7 @@ const compat = new FlatCompat();
 module.exports = [
   ...compat.extends('airbnb-base'),
 
-  { ignores: ['dist/**', 'node_modules/**', 'eslint.config.cjs'] },
+  { ignores: ['dist/**', 'js/**', 'node_modules/**', 'eslint.config.cjs', 'vitest.config.ts'] },
 
   {
     files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
@@ -28,7 +28,7 @@ module.exports = [
       },
     },
   },
-  
+
   {
     files: ['**/*.ts'],
     languageOptions: {
@@ -39,6 +39,14 @@ module.exports = [
         ecmaVersion: 5,
         sourceType: 'module',
       },
+      globals: {
+        document: 'readonly',
+        HTMLElement: 'readonly',
+        CustomEvent: 'readonly',
+        fetch: 'readonly',
+        Response: 'readonly',
+        RequestInit: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
@@ -48,16 +56,18 @@ module.exports = [
       'import/no-extraneous-dependencies': 'off',
       'import/prefer-default-export': 'off',
       'no-unused-vars': 'off',
-      "no-undef": "warn",
-      "class-methods-use-this": "off",
-      "import/extensions": "off",
-      "max-classes-per-file": "off",
+      'no-undef': 'off',
+      'class-methods-use-this': 'off',
+      'import/extensions': 'off',
+      'max-classes-per-file': 'off',
+      'no-use-before-define': 'off',
+      'lines-between-class-members': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_' },
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       'no-console': 'off',
-      'import/no-duplicates': 'off'
+      'import/no-duplicates': 'off',
     },
     settings: {
       'import/resolver': {

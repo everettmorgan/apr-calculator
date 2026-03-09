@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+  describe, it, expect, vi, beforeEach,
+} from 'vitest';
 import '../../elements/aprs.element';
 import { AffirmCalculatorApr } from '../../elements/aprs.element';
 

@@ -2,7 +2,9 @@ import './elements/root.element';
 import { Service } from 'typedi';
 import { AffirmCalculatorRoot } from './elements/root.element';
 import { ViewEvents } from './events/view-events';
-import { ICalculatorView, ViewMountOptions, ViewState, VIEW_TOKEN } from './domain/ports';
+import {
+  ICalculatorView, ViewMountOptions, ViewState, VIEW_TOKEN,
+} from './domain/ports';
 
 const DEFAULT_MOUNT_SELECTOR = '#affirm-apr-calculator';
 

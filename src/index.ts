@@ -77,4 +77,3 @@ export function create(apiConfig?: ApiConfig): AprCalculatorBuilder {
   }
   return builder;
 }
-
