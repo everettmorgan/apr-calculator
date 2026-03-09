@@ -96,6 +96,3 @@ Validates the configuration and mounts the widget. Optionally accepts a CSS sele
 - `yarn lint` — run ESLint and auto-fix where possible.
 - `yarn test` — run the full test suite once.
 - `yarn test:watch` — run tests in watch mode.
-
-## License
-MIT
