@@ -2,6 +2,7 @@
   "name": "affirm-apr-calculator",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "repository": "git@github.com:everettmorgan/apr-calculator.git",
   "author": "everettmorgan <gitlab@foobar.mozmail.com>",
   "license": "MIT",
